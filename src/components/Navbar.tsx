@@ -1,93 +1,133 @@
-import { Menu, ShoppingCart, Sun, X } from 'lucide-react';
-import Logo from '../assets/logo.png';
+import { Menu, Moon, ShoppingCart, Sun, X } from 'lucide-react';
 import { useState } from 'react';
-import { Search } from './layout/Search';
+import Logo from '../assets/logo.png';
+import { SearchInput } from './layout/SearchInput';
+import { useTheme } from '@/hooks/useTheme';
 
-interface HeaderProps {
+interface NavbarProps {
   onCartClick: () => void;
   onCategoriesClick: () => void;
+  onLogoClick: () => void;
 }
 
-export const Navbar = ({ onCartClick, onCategoriesClick }: HeaderProps) => {
+export const Navbar = ({ onCartClick, onCategoriesClick, onLogoClick }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const { theme, toggleTheme } = useTheme();
+
+  // Should come from global state later
   const cartItemsCount = 11;
 
+  const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
+
   return (
-    <nav className='bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50 transition-colors'>
+    <nav className='sticky top-0 z-50 bg-background border-b border-border'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='flex items-center justify-between h-16 gap-4'>
+        <div className='flex h-16 items-center justify-between gap-4'>
           {/* Logo */}
-          <div className='flex items-center gap-2 shrink-0 cursor-pointer'>
+          <button
+            onClick={onLogoClick}
+            aria-label='Go to home'
+            className='flex items-center shrink-0 focus:outline-none'
+          >
             <img src={Logo} alt='Debhai' className='h-16 w-auto' />
-          </div>
+          </button>
 
-          {/* Search Bar - DESKTOP */}
+          {/* Desktop Search */}
           <div className='hidden md:flex flex-1 max-w-2xl'>
-            <Search />
+            <SearchInput value={searchQuery} onChange={setSearchQuery} />
           </div>
 
-          {/* ACTIONS */}
+          {/* Actions */}
           <div className='flex items-center gap-2 sm:gap-4'>
             <button
-              className='p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors'
+              onClick={toggleTheme}
               aria-label='Toggle theme'
+              className='p-2 rounded-lg
+                text-foreground
+                hover:bg-muted
+                transition-colors'
             >
-              <Sun />
+              {theme === 'dark' ? <Sun className='h-5 w-5' /> : <Moon className='h-5 w-5' />}
             </button>
 
-            {/* Mobile Menu */}
+            {/* Categories (Desktop) */}
             <button
-              className='md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors'
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label='Toggle mobile menu'
-            >
-              {isMobileMenuOpen ? (
-                <X className='w-6 h-6 text-gray-700 dark:text-gray-200' />
-              ) : (
-                <Menu className='w-6 h-6 text-gray-700 dark:text-gray-200' />
-              )}
-            </button>
-
-            {/* Categories Button - DESKTOP */}
-            <button
-              className='hidden md:block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors'
               onClick={onCategoriesClick}
+              className='
+                hidden md:inline-flex items-center
+                px-4 py-2 rounded-lg
+                text-sm font-medium
+                text-foreground
+                hover:bg-muted
+                transition-colors
+              '
             >
               Categories
             </button>
 
-            {/* CART */}
+            {/* Cart */}
             <button
-              className='relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors'
-              aria-label='View cart'
               onClick={onCartClick}
+              aria-label='View cart'
+              className='relative p-2 rounded-lg
+                text-foreground
+                hover:bg-muted
+                transition-colors'
             >
-              <ShoppingCart className='w-6 h-6 text-gray-700 dark:text-gray-200' />
+              <ShoppingCart className='w-6 h-6' />
+
               {cartItemsCount > 0 && (
-                <span className='absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center'>
-                  {cartItemsCount > 10 ? '10+' : cartItemsCount}
+                <span
+                  className='absolute -top-1 -right-1
+                    min-w-5 h-5 px-1
+                    rounded-full
+                    bg-destructive
+                    text-primary-foreground
+                    text-xs
+                    flex items-center justify-center
+                  '
+                >
+                  {cartItemsCount > 9 ? '9+' : cartItemsCount}
                 </span>
               )}
+            </button>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={toggleMobileMenu}
+              aria-label='Toggle mobile menu'
+              className='md:hidden p-2 rounded-lg
+                text-foreground
+                hover:bg-muted
+                transition-colors'
+            >
+              {isMobileMenuOpen ? <X className='w-6 h-6' /> : <Menu className='w-6 h-6' />}
             </button>
           </div>
         </div>
 
         {/* Mobile Search */}
         <div className='md:hidden pb-4'>
-          <Search />
+          <SearchInput value={searchQuery} onChange={setSearchQuery} />
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className='md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900'>
+        <div className='md:hidden border-t border-border bg-background'>
           <div className='px-4 py-2'>
             <button
               onClick={() => {
                 onCategoriesClick();
                 setIsMobileMenuOpen(false);
               }}
-              className='w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-gray-700 dark:text-gray-200'
+              className='w-full text-left px-4 py-3 rounded-lg
+                text-foreground
+                hover:bg-muted
+                transition-colors
+              '
             >
               Categories
             </button>
